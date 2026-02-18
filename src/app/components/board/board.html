@@ -1,0 +1,11 @@
+<div class="board">
+  @for (row of grid; track $index; let rowIndex = $index) {
+    <div class="row">
+      @for (cell of row; track $index; let colIndex = $index) {
+        <div class="cell">
+          {{ rowIndex }}{{ colIndex }}
+        </div>
+      }
+    </div>
+  }
+</div>
