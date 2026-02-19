@@ -2,10 +2,32 @@
   @for (row of grid; track $index; let rowIndex = $index) {
     <div class="row">
       @for (cell of row; track $index; let colIndex = $index) {
-        <div class="cell">
-          {{ rowIndex }}{{ colIndex }}
-        </div>
+        <input
+          [id]="'cell-' + rowIndex + '-' + colIndex"
+          class="cell"
+          [class.invalid]="invalidCells.has(rowIndex + '-' + colIndex)"
+          type="text"
+          maxlength="1"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="numeric"
+          pattern="[1-9]"
+          [value]="cell === 0 ? '' : cell"
+          [readonly]="!isEditable(rowIndex, colIndex)"
+          (click)="selectCell(rowIndex, colIndex)"
+          (keydown)="handleKey($event)"
+          (input)="updateCell(rowIndex, colIndex, $any($event.target).value)"
+        />
+
       }
     </div>
   }
 </div>
+@if (isComplete) {
+  <div class="success">
+    🎉 Puzzle Complete! Sudokulous!
+  </div>
+}
+

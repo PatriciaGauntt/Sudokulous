@@ -1,5 +1,4 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal, ViewChild } from '@angular/core';
 import { Board } from './components-board/board';
 
 @Component({
@@ -9,5 +8,14 @@ import { Board } from './components-board/board';
   styleUrl: './app.css'
 })
 export class App {
+
   protected readonly title = signal('Sudokulous');
+
+  @ViewChild(Board)
+  boardComponent!: Board;
+
+  newGame() {
+    this.boardComponent.loadPuzzle();
+  }
 }
+
