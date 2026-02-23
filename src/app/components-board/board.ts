@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, HostListener } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-board',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './board.html',
   styleUrl: './board.css',
 })
@@ -47,9 +48,12 @@ export class Board {
   isComplete = false;
   invalidCells: Set<string> = new Set();
   initialPuzzle: number[][] = [];
+  timerSeconds = 0;
+  private timerInterval: any = null;
+  difficulty: 'easy' | 'medium' | 'hard' | 'evil' = 'medium';
 
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     this.loadPuzzle();
   }
 
@@ -88,6 +92,16 @@ export class Board {
     return true;
   }
 
+  private getRemovalCount(): number {
+    switch (this.difficulty) {
+      case 'easy': return 35;
+      case 'medium': return 45;
+      case 'hard': return 55;
+      case 'evil': return 60;
+      default: return 45;
+    }
+  }
+
   private isSafe(board: number[][], row: number, col: number, num: number): boolean {
 
     // Row
@@ -120,41 +134,44 @@ export class Board {
     return array;
   }
 
-  // 🔹 Load random puzzle
+    // 🔹 Load random puzzle
   loadPuzzle() {
     const fullBoard = this.generateFullBoard();
 
-    // Keep full solution
     this.puzzle = fullBoard.map(row => [...row]);
 
-    // Create playable board by removing numbers
-    this.initialPuzzle = this.removeNumbers(fullBoard, 45); // 45 removals = medium difficulty
-                                                            // 35 removals = easy difficulty
-                                                            // 55 removals = hard difficulty
-                                                            // 60+ removals = evil difficulty
-    this.grid = this.initialPuzzle.map(row => [...row]);
+    // Create playable puzzle
+    const playable = this.removeNumbers(fullBoard, this.getRemovalCount());
+
+    // Store immutable starting puzzle
+    this.initialPuzzle = playable.map(row => [...row]);
+
+    // Player grid
+    this.grid = playable.map(row => [...row]);
 
     this.invalidCells.clear();
     this.isComplete = false;
+
+    this.resetTimer();
+    this.startTimer();
   }
+    private removeNumbers(board: number[][], removals: number): number[][] {
+      const puzzle = board.map(row => [...row]);
 
-  private removeNumbers(board: number[][], removals: number): number[][] {
-    const puzzle = board.map(row => [...row]);
+      let count = 0;
 
-    let count = 0;
+      while (count < removals) {
+        const row = Math.floor(Math.random() * 9);
+        const col = Math.floor(Math.random() * 9);
 
-    while (count < removals) {
-      const row = Math.floor(Math.random() * 9);
-      const col = Math.floor(Math.random() * 9);
-
-      if (puzzle[row][col] !== 0) {
-        puzzle[row][col] = 0;
-        count++;
+        if (puzzle[row][col] !== 0) {
+          puzzle[row][col] = 0;
+          count++;
+        }
       }
-    }
 
-    return puzzle;
-  }
+      return puzzle;
+    }
 
   handleNumberInput(event: KeyboardEvent) {
     const key = event.key;
@@ -293,6 +310,48 @@ export class Board {
       return false;
     }
 
+    this.stopTimer();
     return true;
   }
+
+  startTimer() {
+    if (this.timerInterval) return;
+
+    this.timerInterval = setInterval(() => {
+      this.timerSeconds++;
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  resetTimer() {
+    this.timerSeconds = 0;
+  }
+
+  get formattedTime(): string {
+    const minutes = Math.floor(this.timerSeconds / 60);
+    const seconds = this.timerSeconds % 60;
+
+    return `${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
+  @HostListener('document:visibilitychange')
+    handleVisibilityChange() {
+      if (document.hidden) {
+        this.stopTimer();
+      } else {
+        if (!this.isComplete) {
+          this.startTimer();
+        }
+      }
+    }
+
 }

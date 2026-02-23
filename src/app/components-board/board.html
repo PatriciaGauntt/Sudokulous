@@ -25,6 +25,21 @@
     </div>
   }
 </div>
+<div class="timer">
+  ⏱ {{ formattedTime }}
+</div>
+
+<div class="controls">
+  <label>Difficulty:</label>
+  <select [(ngModel)]="difficulty" (change)="loadPuzzle()">
+    <option value="easy">Easy</option>
+    <option value="medium">Medium</option>
+    <option value="hard">Hard</option>
+    <option value="evil">Evil</option>
+  </select>
+
+  <!--button (click)="loadPuzzle()">New Game</button-->
+</div>
 @if (isComplete) {
   <div class="success">
     🎉 Puzzle Complete! Sudokulous!
