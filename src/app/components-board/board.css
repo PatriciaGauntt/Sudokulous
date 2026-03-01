@@ -2,6 +2,7 @@
   display: inline-block;
   border: 3px solid black;
   margin-top: 20px;
+  position: relative;
 }
 
 .row {
@@ -72,6 +73,21 @@
 select, button {
   padding: 5px 10px;
   font-size: 14px;
+}
+
+.paused-overlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  font-weight: bold;
+  z-index: 10;
+  border-radius: 8px;
 }
 
 

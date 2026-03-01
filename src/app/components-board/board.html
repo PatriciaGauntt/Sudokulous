@@ -1,4 +1,5 @@
 <div class="board">
+
   @for (row of grid; track $index; let rowIndex = $index) {
     <div class="row">
       @for (cell of row; track $index; let colIndex = $index) {
@@ -9,25 +10,32 @@
           type="text"
           maxlength="1"
           autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
           inputmode="numeric"
           pattern="[1-9]"
           [value]="cell === 0 ? '' : cell"
-          [readonly]="!isEditable(rowIndex, colIndex)"
+          [readonly]="isPaused || !isEditable(rowIndex, colIndex)"
           (click)="selectCell(rowIndex, colIndex)"
           (keydown)="handleKey($event)"
           (input)="updateCell(rowIndex, colIndex, $any($event.target).value)"
         />
-
       }
     </div>
   }
+
+  @if (isPaused) {
+    <div class="paused-overlay">
+      ⏸ Game Paused
+    </div>
+  }
+
 </div>
 <div class="timer">
   ⏱ {{ formattedTime }}
 </div>
+
+<button (click)="togglePause()">
+  {{ isPaused ? 'Resume Game' : 'Pause Game' }}
+</button>
 
 <div class="controls">
   <label>Difficulty:</label>

@@ -51,6 +51,7 @@ export class Board {
   timerSeconds = 0;
   private timerInterval: any = null;
   difficulty: 'easy' | 'medium' | 'hard' | 'evil' = 'medium';
+  isPaused = false;
 
 
   constructor(private cdr: ChangeDetectorRef) {
@@ -318,8 +319,10 @@ export class Board {
     if (this.timerInterval) return;
 
     this.timerInterval = setInterval(() => {
-      this.timerSeconds++;
-      this.cdr.detectChanges();
+      if (!this.isPaused) {
+        this.timerSeconds++;
+        this.cdr.detectChanges();   // keep this
+      }
     }, 1000);
   }
 
@@ -332,6 +335,11 @@ export class Board {
 
   resetTimer() {
     this.timerSeconds = 0;
+  }
+
+  togglePause(): void {
+    this.isPaused = !this.isPaused;
+    this.cdr.detectChanges();
   }
 
   get formattedTime(): string {
